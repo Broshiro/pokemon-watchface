@@ -35,7 +35,7 @@ class WatchFaceRenderer(
     private val store: PokemonStore
 ) : Renderer.CanvasRenderer2<WatchFaceRenderer.SharedAssets>(
     surfaceHolder, currentUserStyleRepository, watchState, canvasType,
-    FRAME_PERIOD_MS, clearWithBackgroundTintBeforeEach = false
+    FRAME_PERIOD_MS, clearWithBackgroundTintBeforeRenderingHighlightLayer = false
 ) {
 
     class SharedAssets : Renderer.SharedAssets {

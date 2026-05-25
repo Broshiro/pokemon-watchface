@@ -61,6 +61,7 @@ dependencies {
 
     // Coil — async sprite loading from PokeAPI CDN
     implementation("io.coil-kt:coil:2.6.0")
+    implementation("io.coil-kt:coil-compose:2.6.0")  // AsyncImage composable
 
     // Wear Compose — picker UI on-watch
     implementation("androidx.wear.compose:compose-material:1.3.0")

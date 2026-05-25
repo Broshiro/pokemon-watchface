@@ -5,7 +5,6 @@ import androidx.wear.watchface.*
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import com.pokemon.watchface.data.PokemonStore
 import com.pokemon.watchface.health.HealthTracker
-import kotlinx.coroutines.launch
 
 /**
  * Entry point for the Pokémon watch face.
@@ -28,10 +27,8 @@ class PokemonWatchFaceService : WatchFaceService() {
         val store = PokemonStore(applicationContext)
         val healthTracker = HealthTracker(applicationContext)
 
-        // Register passive health monitoring (runs for the lifetime of the service)
-        serviceScope.launch {
-            healthTracker.register()
-        }
+        // createWatchFace is already a suspend function, so register() can be called directly
+        healthTracker.register()
 
         val renderer = WatchFaceRenderer(
             context = applicationContext,
