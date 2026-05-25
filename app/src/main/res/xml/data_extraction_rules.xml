@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Controls what gets backed up to the cloud and transferred to a new device.
+    We exclude the DataStore prefs so step progress and Pokemon selection
+    start fresh rather than restoring stale state from a different device.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" path="pokemon_state.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="pokemon_state.xml" />
+    </device-transfer>
+</data-extraction-rules>
