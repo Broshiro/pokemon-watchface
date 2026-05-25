@@ -1,37 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Simple Pokéball icon -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Top half (red) -->
+    <!-- Top half (red) — semicircle arc from left to right over the top -->
     <path
         android:fillColor="#E53935"
-        android:pathData="M54,18 A36,36 0 0 1 90,54 L18,54 A36,36 0 0 1 54,18 Z" />
+        android:pathData="M 18,54 A 36,36 0 1 1 90,54 Z" />
 
-    <!-- Bottom half (white) -->
+    <!-- Bottom half (white) — semicircle arc from right to left under the bottom -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M54,90 A36,36 0 0 1 18,54 L90,54 A36,36 0 0 1 54,90 Z" />
+        android:pathData="M 90,54 A 36,36 0 1 1 18,54 Z" />
 
-    <!-- Center divider line -->
-    <rect
-        android:fillColor="#212121"
-        android:left="18"
-        android:top="51"
-        android:right="90"
-        android:bottom="57" />
-
-    <!-- Center button outline -->
+    <!-- Center divider band (dark) — rectangle expressed as a path -->
     <path
         android:fillColor="#212121"
-        android:pathData="M54,54 m-12,0 a12,12 0 1 0 24,0 a12,12 0 1 0 -24,0" />
+        android:pathData="M 18,51 L 90,51 L 90,57 L 18,57 Z" />
 
-    <!-- Center button inner -->
+    <!-- Center button outer ring (dark circle, radius 12) -->
+    <path
+        android:fillColor="#212121"
+        android:pathData="M 42,54 A 12,12 0 1 0 66,54 A 12,12 0 1 0 42,54 Z" />
+
+    <!-- Center button inner fill (white circle, radius 7) -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M54,54 m-7,0 a7,7 0 1 0 14,0 a7,7 0 1 0 -14,0" />
+        android:pathData="M 47,54 A 7,7 0 1 0 61,54 A 7,7 0 1 0 47,54 Z" />
 
 </vector>
