@@ -19,10 +19,11 @@ private val Context.dataStore: DataStore<Preferences>
 class PokemonStore(private val context: Context) {
 
     companion object {
-        private val KEY_POKEMON_ID  = intPreferencesKey("selected_pokemon_id")
-        private val KEY_STEPS       = intPreferencesKey("daily_steps")
-        private val KEY_HEART_RATE  = intPreferencesKey("heart_rate_bpm")
-        private val KEY_STEP_DATE   = stringPreferencesKey("step_date")  // "YYYY-MM-DD"
+        private val KEY_POKEMON_ID      = intPreferencesKey("selected_pokemon_id")
+        private val KEY_STEPS           = intPreferencesKey("daily_steps")
+        private val KEY_HEART_RATE      = intPreferencesKey("heart_rate_bpm")
+        private val KEY_STEP_DATE       = stringPreferencesKey("step_date")       // "YYYY-MM-DD"
+        private val KEY_STEP_BASELINE   = longPreferencesKey("step_baseline")     // cumulative steps at day start
     }
 
     val selectedPokemonId: Flow<Int> = context.dataStore.data
@@ -34,6 +35,9 @@ class PokemonStore(private val context: Context) {
     val heartRate: Flow<Int> = context.dataStore.data
         .map { it[KEY_HEART_RATE] ?: 0 }
 
+    val stepBaseline: Flow<Long> = context.dataStore.data
+        .map { it[KEY_STEP_BASELINE] ?: -1L }
+
     /** Called from the picker when the user taps a starter. Resets step progress. */
     suspend fun selectPokemon(pokemonId: Int) {
         context.dataStore.edit { prefs ->
@@ -43,16 +47,27 @@ class PokemonStore(private val context: Context) {
         }
     }
 
-    /** Called by PassiveDataService when a new daily step total arrives. */
+    /** Called by SensorManager listener with raw daily step count. */
     suspend fun updateSteps(steps: Int) {
         context.dataStore.edit { prefs ->
             val today = todayString()
-            // If it's a new day, reset to zero before applying today's count.
             if (prefs[KEY_STEP_DATE] != today) {
                 prefs[KEY_STEP_DATE] = today
                 prefs[KEY_STEPS] = 0
             }
             prefs[KEY_STEPS] = steps
+        }
+    }
+
+    /**
+     * Persists the cumulative step baseline (TYPE_STEP_COUNTER value at the
+     * start of today). Survives service restarts so daily count doesn't reset.
+     */
+    suspend fun updateStepBaseline(baseline: Long, date: String) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_STEP_BASELINE] = baseline
+            prefs[KEY_STEP_DATE]     = date
+            prefs[KEY_STEPS]         = 0
         }
     }
 
