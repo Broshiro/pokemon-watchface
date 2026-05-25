@@ -21,7 +21,7 @@ import java.time.ZonedDateTime
 import kotlin.math.sin
 
 private const val TAG = "PokemonRenderer"
-private const val FRAME_PERIOD_MS = 1000L
+private const val FRAME_PERIOD_MS = 100L   // 10fps in interactive mode for smooth animation
 
 // ── Layout constants (all fractions of screen width) ─────────────────────────
 //
@@ -187,17 +187,31 @@ class WatchFaceRenderer(
         // ── Pokémon sprite (center, radius 0.20w — top clears the date) ───────
         val spriteRadius = (w * 0.20f).toInt()
         spriteBitmap?.let { bmp ->
-            val left = (cx - spriteRadius).toInt()
-            val top  = (cy - spriteRadius).toInt()
-            val dest = Rect(left, top, left + spriteRadius * 2, top + spriteRadius * 2)
-
             if (isAmbient) {
-                canvas.drawBitmap(bmp, null, dest, ambientSpritePaint)
+                // Ambient: static, greyscale, no animation
+                val left = (cx - spriteRadius).toInt()
+                val top  = (cy - spriteRadius).toInt()
+                canvas.drawBitmap(bmp, null,
+                    Rect(left, top, left + spriteRadius * 2, top + spriteRadius * 2),
+                    ambientSpritePaint)
             } else {
+                // Interactive: bob up/down + breathe scale via sine waves
+                val t       = System.currentTimeMillis()
+                val bobY    = (sin(t / 1500.0 * Math.PI * 2) * 6.0).toFloat()
+                val breathe = (1.0 + 0.04 * sin(t / 2500.0 * Math.PI * 2)).toFloat()
+
                 if (stage.stageLabel == "Dynamax") {
-                    drawDynamaxGlow(canvas, cx, cy, spriteRadius.toFloat(), zonedDateTime)
+                    // Glow follows the bob so it doesn't detach from the sprite
+                    drawDynamaxGlow(canvas, cx, cy + bobY, spriteRadius * breathe)
                 }
-                canvas.drawBitmap(bmp, null, dest, null)
+
+                // Use canvas transform so scale is centred on the sprite
+                canvas.save()
+                canvas.translate(cx, cy + bobY)
+                canvas.scale(breathe, breathe)
+                val r = spriteRadius
+                canvas.drawBitmap(bmp, null, Rect(-r, -r, r, r), null)
+                canvas.restore()
             }
         }
 
@@ -305,8 +319,9 @@ class WatchFaceRenderer(
         canvas.drawCircle(bounds.exactCenterX(), bounds.exactCenterY(), bounds.width() * 0.6f, p)
     }
 
-    private fun drawDynamaxGlow(canvas: Canvas, cx: Float, cy: Float, radius: Float, time: ZonedDateTime) {
-        val pulse = (sin(time.second * 0.3) * 0.15 + 0.85).toFloat()
+    private fun drawDynamaxGlow(canvas: Canvas, cx: Float, cy: Float, radius: Float) {
+        // Pulse independently of the bob so glow and sprite breathe at different rates
+        val pulse = (1.0 + 0.2 * sin(System.currentTimeMillis() / 800.0 * Math.PI * 2)).toFloat()
         val p = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
         for (ring in 5 downTo 1) {
             p.color = Color.argb((50 / ring).coerceIn(5, 50), 255, 60, 60)
